@@ -3024,8 +3024,12 @@ static int tegra_udc_probe(struct platform_device *pdev)
 	if (pdata->port_otg)
 		udc->transceiver = usb_get_phy(USB_PHY_TYPE_USB2);
 
-	if (IS_ERR_OR_NULL(udc->transceiver))
-		udc->transceiver = NULL;
+	if (pdata->port_otg && IS_ERR_OR_NULL(udc->transceiver)) {
+		dev_dbg(&pdev->dev,"otg transceiver could not be received, "
+				"defer probing\n");
+		err = PTR_ERR(udc->transceiver);
+		goto err_del_udc;
+	}
 
 	if (udc->transceiver) {
 		dr_controller_stop(udc);
