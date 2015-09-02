@@ -4626,15 +4626,6 @@ static bool tegra_dc_dsi_osidle(struct tegra_dc *dc)
 		return false;
 }
 
-static void tegra_dsi_bl_off(struct backlight_device *bd)
-{
-	if (!bd)
-		return;
-
-	bd->props.brightness = 0;
-	backlight_update_status(bd);
-}
-
 static int tegra_dsi_deep_sleep(struct tegra_dc *dc,
 				struct tegra_dc_dsi_data *dsi)
 {
@@ -4645,8 +4636,6 @@ static int tegra_dsi_deep_sleep(struct tegra_dc *dc,
 		return 0;
 
 	cancel_delayed_work(&dsi->idle_work);
-
-	tegra_dsi_bl_off(get_backlight_device_by_name(dsi->info.bl_name));
 
 	/* Suspend DSI panel */
 	err = tegra_dsi_send_panel_cmd(dc, dsi,
