@@ -332,6 +332,18 @@ static struct tegra_io_dpd csib_io = {
 	.io_dpd_bit		= 1,
 };
 
+static struct tegra_io_dpd csic_io = {
+	.name			= "CSIC",
+	.io_dpd_reg_index	= 1,
+	.io_dpd_bit		= 8,
+};
+
+static struct tegra_io_dpd csid_io = {
+	.name			= "CSID",
+	.io_dpd_reg_index	= 1,
+	.io_dpd_bit		= 9,
+};
+
 static struct tegra_io_dpd csie_io = {
 	.name			= "CSIE",
 	.io_dpd_reg_index	= 1,
@@ -345,8 +357,9 @@ static int ardbeg_ar0330_front_power_on(struct ar0330_power_rail *pw)
 	if (unlikely(WARN_ON(!pw || !pw->avdd || !pw->iovdd)))
 		return -EFAULT;
 
-	/* disable CSIE IOs DPD mode to turn on front camera for ardbeg */
-	tegra_io_dpd_disable(&csie_io);
+	/* disable CSI IOs DPD mode to turn on front camera for ardbeg */
+	tegra_io_dpd_disable(&csic_io);
+	tegra_io_dpd_disable(&csid_io);
 
 	gpio_set_value(CAM2_PWDN, 0);
 
@@ -367,8 +380,9 @@ ar0330_front_avdd_fail:
 	regulator_disable(pw->iovdd);
 
 ar0330_front_iovdd_fail:
-	/* put CSIE IOs into DPD mode to save additional power for ardbeg */
-	tegra_io_dpd_enable(&csie_io);
+	/* put CSI IOs into DPD mode to save additional power for ardbeg */
+	tegra_io_dpd_enable(&csic_io);
+	tegra_io_dpd_enable(&csid_io);
 	pr_err("%s failed.\n", __func__);
 	return -ENODEV;
 }
@@ -376,10 +390,11 @@ ar0330_front_iovdd_fail:
 static int ardbeg_ar0330_front_power_off(struct ar0330_power_rail *pw)
 {
 	if (unlikely(WARN_ON(!pw || !pw->avdd || !pw->iovdd))) {
-		/* put CSIE IOs into DPD mode to
+		/* put CSI IOs into DPD mode to
 		 * save additional power for ardbeg
 		 */
-		tegra_io_dpd_enable(&csie_io);
+		tegra_io_dpd_enable(&csic_io);
+		tegra_io_dpd_enable(&csid_io);
 		return -EFAULT;
 	}
 
@@ -389,8 +404,9 @@ static int ardbeg_ar0330_front_power_off(struct ar0330_power_rail *pw)
 
 	regulator_disable(pw->iovdd);
 	regulator_disable(pw->avdd);
-	/* put CSIE IOs into DPD mode to save additional power for ardbeg */
-	tegra_io_dpd_enable(&csie_io);
+	/* put CSI IOs into DPD mode to save additional power for ardbeg */
+	tegra_io_dpd_enable(&csic_io);
+	tegra_io_dpd_enable(&csid_io);
 	return 0;
 }
 
@@ -408,7 +424,7 @@ static int ardbeg_ar0330_power_on(struct ar0330_power_rail *pw)
 	if (unlikely(WARN_ON(!pw || !pw->avdd || !pw->iovdd)))
 		return -EFAULT;
 
-	/* disable CSIE IOs DPD mode to turn on front camera for ardbeg */
+	/* disable CSI IOs DPD mode to turn on front camera for ardbeg */
 	tegra_io_dpd_disable(&csia_io);
 	tegra_io_dpd_disable(&csib_io);
 
