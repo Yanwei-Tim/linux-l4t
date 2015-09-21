@@ -35,6 +35,7 @@
 #include "dvfs.h"
 #include "gpio-names.h"
 #include "pm.h"
+#include "board-ardbeg.h"
 #include "tegra12_emc.h"
 
 static __initdata struct tegra_clk_init_table meerkat_clk_init_table[] = {
@@ -302,6 +303,7 @@ void __init tegra_meerkat_dt_init(struct of_dev_auxdata *auxdata)
 	/* FIXME: This should perhaps be called with the board name instead */
 	tegra_soc_device_init("Meerkat COM");
 
+	ardbeg_camera_auxdata(auxdata);
 	of_platform_populate(NULL, of_default_bus_match_table,
 			auxdata, &platform_bus);
 	platform_add_devices(meerkat_devices, ARRAY_SIZE(meerkat_devices));
