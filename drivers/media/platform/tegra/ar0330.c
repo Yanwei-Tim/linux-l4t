@@ -699,7 +699,7 @@ static int ar0330_power_on(struct ar0330_power_rail *pw)
 	if (err)
 		goto ar0330_iovdd_fail;
 
-	usleep_range(10, 20);
+	usleep_range(30000, 31000);
 
 	gpio_set_value(info->pdata->cam2_gpio, 0);
 	usleep_range(1000, 1100);
