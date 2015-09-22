@@ -361,26 +361,33 @@ static int ardbeg_ar0330_front_power_on(struct ar0330_power_rail *pw)
 	tegra_io_dpd_disable(&csic_io);
 	tegra_io_dpd_disable(&csid_io);
 
-	gpio_set_value(CAM2_PWDN, 0);
+	gpio_set_value(CAM2_PWDN, 1);
 
+	err = regulator_enable(pw->avdd);
+	if (unlikely(err))
+		goto ar0330_front_avdd_fail;
+	usleep_range(90, 110);
 	err = regulator_enable(pw->iovdd);
 	if (unlikely(err))
 		goto ar0330_front_iovdd_fail;
 
-	usleep_range(1000, 1100);
-	err = regulator_enable(pw->avdd);
-	if (unlikely(err))
-		goto ar0330_front_avdd_fail;
+	usleep_range(30000, 31000);
 
-	usleep_range(1, 2);
+	gpio_set_value(CAM2_PWDN, 0);
+	usleep_range(1000, 1100);
 	gpio_set_value(CAM2_PWDN, 1);
 
+	/* Wait 150000 clock cycles @ 24MHz = 6.24 ms */
+	usleep_range(6500, 10000);
+
 	return 0;
-ar0330_front_avdd_fail:
-	regulator_disable(pw->iovdd);
 
 ar0330_front_iovdd_fail:
-	/* put CSI IOs into DPD mode to save additional power for ardbeg */
+	regulator_disable(pw->avdd);
+
+ar0330_front_avdd_fail:
+	gpio_set_value(CAM2_PWDN, 0);
+	/* put CSIE IOs into DPD mode to save additional power for ardbeg */
 	tegra_io_dpd_enable(&csic_io);
 	tegra_io_dpd_enable(&csid_io);
 	pr_err("%s failed.\n", __func__);
@@ -428,25 +435,32 @@ static int ardbeg_ar0330_power_on(struct ar0330_power_rail *pw)
 	tegra_io_dpd_disable(&csia_io);
 	tegra_io_dpd_disable(&csib_io);
 
-	gpio_set_value(CAM1_PWDN, 0);
+	gpio_set_value(CAM1_PWDN, 1);
 
+	err = regulator_enable(pw->avdd);
+	if (unlikely(err))
+		goto ar0330_avdd_fail;
+	usleep_range(90, 110);
 	err = regulator_enable(pw->iovdd);
 	if (unlikely(err))
 		goto ar0330_iovdd_fail;
 
-	usleep_range(1000, 1100);
-	err = regulator_enable(pw->avdd);
-	if (unlikely(err))
-		goto ar0330_avdd_fail;
+	usleep_range(30000, 31000);
 
-	usleep_range(1, 2);
+	gpio_set_value(CAM1_PWDN, 0);
+	usleep_range(1000, 1100);
 	gpio_set_value(CAM1_PWDN, 1);
 
+	/* Wait 150000 clock cycles @ 24MHz = 6.24 ms */
+	usleep_range(6500, 10000);
+
 	return 0;
-ar0330_avdd_fail:
-	regulator_disable(pw->iovdd);
 
 ar0330_iovdd_fail:
+	regulator_disable(pw->avdd);
+
+ar0330_avdd_fail:
+	gpio_set_value(CAM1_PWDN, 0);
 	/* put CSIE IOs into DPD mode to save additional power for ardbeg */
 	tegra_io_dpd_enable(&csia_io);
 	tegra_io_dpd_enable(&csib_io);
