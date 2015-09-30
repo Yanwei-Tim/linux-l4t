@@ -1037,7 +1037,7 @@ static int ar0330_power_on(struct ar0330_power_rail *pw)
 	int err;
 	struct ar0330_info *info = container_of(pw, struct ar0330_info, power);
 
-	pr_err("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 	if (unlikely(WARN_ON(!pw || !pw->iovdd || !pw->avdd || !pw->dvdd)))
 		return -EFAULT;
@@ -1083,7 +1083,7 @@ static int ar0330_power_off(struct ar0330_power_rail *pw)
 {
 	struct ar0330_info *info = container_of(pw, struct ar0330_info, power);
 
-	pr_err("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	if (unlikely(WARN_ON(!pw || !pw->iovdd || !pw->avdd || !pw->dvdd)))
 		return -EFAULT;
 
@@ -1206,7 +1206,7 @@ static struct ar0330_platform_data *ar0330_parse_dt(struct i2c_client *client)
 	const struct of_device_id *match;
 	int err;
 
-	pr_err("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	match = of_match_device(ar0330_of_match, &client->dev);
 	if (!match) {
 		dev_err(&client->dev, "Failed to find matching dt id\n");
@@ -1249,7 +1249,7 @@ ar0330_probe(struct i2c_client *client,
 	int err;
 	const char *mclk_name;
 
-	pr_err("[AR0330]: probing sensor.\n");
+	pr_info("[AR0330]: probing sensor.\n");
 
 	info = devm_kzalloc(&client->dev,
 			sizeof(struct ar0330_info), GFP_KERNEL);
@@ -1267,10 +1267,10 @@ ar0330_probe(struct i2c_client *client,
 	}
 
 	if (client->dev.of_node) {
-		pr_err("[AR0330]: Found DT node\n");
+		pr_debug("[AR0330]: Found DT node\n");
 		info->pdata = ar0330_parse_dt(client);
 	} else {
-		pr_err("[AR0330]: Found platform data\n");
+		pr_debug("[AR0330]: Found platform data\n");
 		info->pdata = client->dev.platform_data;
 	}
 
@@ -1323,7 +1323,7 @@ ar0330_probe(struct i2c_client *client,
 	}
 
 	i2c_set_clientdata(client, info);
-	pr_err("[AR0330]: end of probing sensor.\n");
+	pr_info("[AR0330]: end of probing sensor.\n");
 	return 0;
 
 ar0330_probe_fail:
