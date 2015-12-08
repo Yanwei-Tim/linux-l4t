@@ -71,6 +71,13 @@
 			dap4_sclk_pp7 {
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 			};
+
+			clk2_req_pcc5 {
+				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
+				nvidia,pull = <TEGRA_PIN_PULL_UP>;
+				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+			};
+
 		};
 	};
 
@@ -170,6 +177,17 @@
 		status = "okay";
 	};
 
+	/* Limit MMC3 to 1.8V for TI SDIO */
+	i2c@7000d000 {
+		pmic: pmic@40 {
+			regulators {
+				vddio_sdmmc3: ldo6 {
+					regulator-max-microvolt = <1800000>;
+				};
+			};
+		};
+	};
+
 	/* SPI4 */
 	spi@7000da00 {
 		status = "okay";
@@ -217,7 +235,19 @@
 	/* MMC card slot */
 	sdhci@700b0400 {
 		status = "okay";
+
+		cap-power-off-card;
+		keep-power-in-suspend;
+		mmc-ocr-mask = <0>;
 		vddio_sd_slot-supply = <&vdd_3v3_sd>;
+
+		wlcore: wlcore@2 {
+			status = "okay";
+			compatible = "ti,wl1837";
+			reg = <2>;
+			interrupt-parent = <&gpio>;
+			interrupts = <TEGRA_GPIO(CC, 5) IRQ_TYPE_LEVEL_HIGH>;
+		};
 	};
 
 	/* Recovery USB */
